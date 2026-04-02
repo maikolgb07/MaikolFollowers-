@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Admin | MaikolFollower</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>body { background: #111; color: white; }</style>
+</head>
+<body class="p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-yellow-500">Configuración de Precios</h1>
+        <div id="editor-container" class="space-y-6"></div>
+        <div class="mt-10 p-6 bg-yellow-900/20 border border-yellow-700 rounded-xl">
+            <h2 class="text-xl font-bold mb-4">Exportar Cambios</h2>
+            <p class="text-sm text-gray-400 mb-4">Haz clic en generar y copia el código resultante al archivo config.js en GitHub.</p>
+            <button onclick="generateConfig()" class="bg-yellow-600 px-6 py-2 rounded font-bold text-black">Generar Código config.js</button>
+            <textarea id="output" class="w-full h-40 mt-4 bg-black p-4 text-xs font-mono text-green-500 border border-gray-800" readonly></textarea>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        function loadEditor() {
+            const container = document.getElementById('editor-container');
+            for(const [plat, data] of Object.entries(SERVICES_DATA)) {
+                let html = `<div class="bg-gray-900 p-6 rounded-xl border border-gray-800">
+                    <h3 class="text-xl font-bold mb-4">${plat} ${data.icon}</h3>`;
+                for(const [serv, tiers] of Object.entries(data.items)) {
+                    html += `<div class="mb-6"><h4 class="text-sm text-gray-400 mb-2">${serv}</h4><div class="grid grid-cols-2 gap-2">`;
+                    tiers.forEach((t, i) => {
+                        html += `<div class="flex items-center space-x-2 bg-black p-2 rounded border border-gray-800">
+                            <span class="text-[10px] text-gray-500 w-12">${t.q}</span>
+                            <input type="number" value="${t.p}" onchange="updatePrice('${plat}','${serv}',${i},this.value)" class="bg-transparent text-yellow-500 w-full outline-none">
+                        </div>`;
+                    });
+                    html += `</div></div>`;
+                }
+                html += `</div>`;
+                container.innerHTML += html;
+            }
+        }
+
+        function updatePrice(p, s, i, v) {
+            SERVICES_DATA[p].items[s][i].p = parseFloat(v);
+        }
+
+        function generateConfig() {
+            const code = `const SERVICES_DATA = ${JSON.stringify(SERVICES_DATA, null, 4)};`;
+            document.getElementById('output').value = code;
+        }
+
+        window.onload = loadEditor;
+    </script>
+</body>
+</html>
+
